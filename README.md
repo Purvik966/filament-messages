@@ -32,6 +32,7 @@
 [Plugins Used](#plugins-used)<br/>
 [Acknowledgments](#acknowledgments)<br/>
 [Support](#support)
+[Overriding Components](#overriding-components)
 
 <a name="getting-started"></a>
 ## Getting Started
@@ -133,3 +134,36 @@ These are [Filament Plugins](https://filamentphp.com/plugins) use for this proje
 ## Show Your Support
 
 Give a ⭐️ if this project helped you!
+
+<a name="overriding-components"></a>
+## Overriding Components
+If you need to customize the `Inbox` Livewire component in an application that consumes this package, avoid editing files under `vendor/` so updates can still be applied. You can override the component by registering your own class under the same Livewire alias the package uses (`fm-inbox`).
+
+1. Create a replacement component in your application (for example, `app/Livewire/Messages/Inbox.php`). You can extend the package component and override only what you need:
+
+    ```php
+    <?php
+
+    namespace App\Livewire\Messages;
+
+    use Raseldev99\FilamentMessages\Livewire\Messages\Inbox as BaseInbox;
+
+    class Inbox extends BaseInbox
+    {
+        // Override methods or add new behavior here.
+    }
+    ```
+
+2. Register your component with the same alias in a service provider so it replaces the package binding. Adding it to `AppServiceProvider::boot()` works well because it runs after the package service provider:
+
+    ```php
+    use App\Livewire\Messages\Inbox;
+    use Livewire\Livewire;
+
+    public function boot(): void
+    {
+        Livewire::component('fm-inbox', Inbox::class);
+    }
+    ```
+
+3. Clear cached views/config as needed (`php artisan optimize:clear`) and the Filament Messages UI will use your component instead of the vendor file while remaining update-safe.
